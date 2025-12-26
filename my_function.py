@@ -30,9 +30,9 @@ def rasterization(in_vector, out_image, field_name, sptial_resolution):
     os.system(cmd)
 
 
-def write_image(out_filename, array, data_set=None, gdal_dtype=None,
-                transform=None, projection=None, driver_name=None,
-                nb_col=None, nb_ligne=None, nb_band=None, nodata=None):
+def write_image_nd(out_filename, array, data_set=None, gdal_dtype=None,
+                   transform=None, projection=None, driver_name=None,
+                   nb_col=None, nb_ligne=None, nb_band=None, nodata=None):
     """
     Write a array into an image file.
 
