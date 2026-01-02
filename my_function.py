@@ -15,7 +15,7 @@ def rasterization(in_vector, out_image, field_name, sptial_resolution):
         sptial_resolution (int): Résolution spatiale du raster de sortie
     """
 
-    # Raterisation du shapefile
+    # Shapefile rasterization
     cmd_pattern = ("gdal_rasterize -a {field_name} "
                    "-tr {sptial_resolution} {sptial_resolution} "
                    "-ot Byte -of GTiff "
@@ -30,11 +30,71 @@ def rasterization(in_vector, out_image, field_name, sptial_resolution):
     os.system(cmd)
 
 
+def rasterization_from_model(in_vector, out_image, field_name, model_raster):
+    """
+    Rasterisation d'un shapefile à partir d'un raster modèle
+    en appelant la fonction gdal_rasterize
+
+    Paramètres:
+    -------------
+        in_vector (str): Shapefile à rasteriser
+        out_image (str): Raster de sortie
+        field_name (str): Champ attributaire utilisé pour la rasterisation
+        model_raster (str): Raster modèle
+    """
+
+    # Ouverture du raster modèle
+    ds = gdal.Open(model_raster)
+    if ds is None:
+        raise RuntimeError(f"Impossible d'ouvrir le raster modèle : {model_raster}")
+
+    # Géotransformation
+    gt = ds.GetGeoTransform()
+    x_res = gt[1]
+    y_res = abs(gt[5])
+
+    # Dimensions
+    cols = ds.RasterXSize
+    rows = ds.RasterYSize
+
+    # Emprise
+    xmin = gt[0]
+    ymax = gt[3]
+    xmax = xmin + cols * x_res
+    ymin = ymax - rows * y_res
+
+    ds = None  # fermeture dataset
+
+    # Commande gdal_rasterize
+    cmd_pattern = (
+        "gdal_rasterize "
+        "-a {field_name} "
+        "-te {xmin} {ymin} {xmax} {ymax} "
+        "-tr {x_res} {y_res} "
+        "-tap "
+        "-ot Byte "
+        "-of GTiff "
+        "-a_nodata 0 "
+        "{in_vector} {out_image}"
+    )
+
+    cmd = cmd_pattern.format(
+        field_name=field_name,
+        xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax,
+        x_res=x_res, y_res=y_res,
+        in_vector=in_vector,
+        out_image=out_image
+    )
+
+    os.system(cmd)
+
+
 def write_image_nd(out_filename, array, data_set=None, gdal_dtype=None,
                    transform=None, projection=None, driver_name=None,
                    nb_col=None, nb_ligne=None, nb_band=None, nodata=None):
     """
-    Write a array into an image file.
+    Write a array into an image file. Same as write_image from read_and_write
+    but with an added parameter for the NoData value.
 
     Parameters
     ----------
