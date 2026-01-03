@@ -32,23 +32,23 @@ def rasterization(in_vector, out_image, field_name, sptial_resolution):
 
 def rasterization_from_model(in_vector, out_image, field_name, model_raster):
     """
-    Rasterisation d'un shapefile à partir d'un raster modèle
-    en appelant la fonction gdal_rasterize
+    Rasterization of a shapefile using the gdal_rasterize
+    function and a template raster.
 
-    Paramètres:
+    Parameters:
     -------------
-        in_vector (str): Shapefile à rasteriser
-        out_image (str): Raster de sortie
-        field_name (str): Champ attributaire utilisé pour la rasterisation
-        model_raster (str): Raster modèle
+        in_vector (str): Shapefile to rasterize
+        out_image (str): Output raster
+        field_name (str): Field used for rasterizatioon
+        model_raster (str): Template raster
     """
 
-    # Ouverture du raster modèle
+    # Open the template raster
     ds = gdal.Open(model_raster)
     if ds is None:
         raise RuntimeError(f"Impossible d'ouvrir le raster modèle : {model_raster}")
 
-    # Géotransformation
+    # Geotransformation
     gt = ds.GetGeoTransform()
     x_res = gt[1]
     y_res = abs(gt[5])
@@ -57,15 +57,15 @@ def rasterization_from_model(in_vector, out_image, field_name, model_raster):
     cols = ds.RasterXSize
     rows = ds.RasterYSize
 
-    # Emprise
+    # Area
     xmin = gt[0]
     ymax = gt[3]
     xmax = xmin + cols * x_res
     ymin = ymax - rows * y_res
 
-    ds = None  # fermeture dataset
+    ds = None  # close dataset
 
-    # Commande gdal_rasterize
+    # gdal_rasterize command
     cmd_pattern = (
         "gdal_rasterize "
         "-a {field_name} "
@@ -93,7 +93,7 @@ def write_image_nd(out_filename, array, data_set=None, gdal_dtype=None,
                    transform=None, projection=None, driver_name=None,
                    nb_col=None, nb_ligne=None, nb_band=None, nodata=None):
     """
-    Write a array into an image file. Same as write_image from read_and_write
+    Write an array into an image file. Same as write_image from read_and_write
     but with an added parameter for the NoData value.
 
     Parameters
