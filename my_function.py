@@ -1,7 +1,6 @@
 import os
 import numpy as np
 from osgeo import gdal
-from libsigma import read_and_write as rw
 
 
 def rasterization_from_model(in_vector, out_image, field_name, model_raster):
